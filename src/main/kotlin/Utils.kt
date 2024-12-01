@@ -1,12 +1,11 @@
+import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
-import kotlin.io.path.Path
-import kotlin.io.path.readText
 
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = Path("src/$name.txt").readText().trim().lines()
+fun readInput(name: String): List<String> = Thread.currentThread().contextClassLoader.getResource(name)?.readText()?.trim()?.lines() ?: throw IOException("Could not read file $name")
 
 /**
  * Converts string to md5 hash.
