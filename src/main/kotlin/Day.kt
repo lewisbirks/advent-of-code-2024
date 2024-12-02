@@ -11,28 +11,33 @@ abstract class Day(private val day: Int, private val name: String) {
     }
 
     fun process() {
-        fun buildPart(part: Any): String {
-            return if (part is String) {
-                part.lines().map { "║   $it" }.joinToString { "\n" }
-            } else {
-                "║   $part"
-            }
+        fun buildResult(part: Any): String = if (part is String) {
+            part.lines().map { "║   $it" }.joinToString { "\n" }
+        } else {
+            "║   $part"
         }
 
-        sequenceOf(
-            {
-                """
-                ╔════════════════════════════════════════════════
-                ║ $this
-                ╠════════════════════════════════════════════════
-                ║ Part 1:
-                """.trimIndent()
-            },
-            { buildPart(part1()) },
-            { "║ Part 2" },
-            { buildPart(part2()) },
-            { "╚════════════════════════════════════════════════" }
-        ).forEach { it().println() }
+        """
+        ╔════════════════════════════════════════════════
+        ║ $this
+        ╠════════════════════════════════════════════════
+        """.trimIndent().println()
+
+        var result = part1()
+
+        """
+            ║ Part 1:
+            ${buildResult(result)}
+        """.trimIndent().println()
+        "╟────────────────────────────────────────────────".println()
+
+        result = part2()
+
+        """
+            ║ Part 2:
+            ${buildResult(result)}
+        """.trimIndent().println()
+        "╚════════════════════════════════════════════════".println()
     }
 
 
