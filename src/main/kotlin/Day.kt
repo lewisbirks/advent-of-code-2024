@@ -23,7 +23,7 @@ abstract class Day(private val day: Int, private val name: String) {
         ╠════════════════════════════════════════════════
         """.trimIndent().println()
 
-        var result = part1()
+        var result: Any = part1()
 
         """
             ║ Part 1:
