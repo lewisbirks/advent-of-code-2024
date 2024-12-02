@@ -31,8 +31,8 @@ abstract class Day(private val day: Int, private val name: String) {
             { buildPart(part1()) },
             { "║ Part 2" },
             { buildPart(part2()) },
-            { "╚════════════════════════════════════════════════" })
-            .forEach { it().println() }
+            { "╚════════════════════════════════════════════════" }
+        ).forEach { it().println() }
     }
 
 
