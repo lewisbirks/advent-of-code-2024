@@ -76,4 +76,4 @@ class Day02 : Day(2, "Red-Nosed Reports") {
     }
 }
 
-fun main() = Day02().process()
+fun main() = println(Day02().process())

@@ -62,4 +62,4 @@ class Day03 : Day(3, "Mull It Over") {
     override fun part2(): Any = scan(allowDisabling = true)
 }
 
-fun main() = Day03().process()
+fun main() = println(Day03().process())

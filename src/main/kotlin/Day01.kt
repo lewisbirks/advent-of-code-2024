@@ -27,4 +27,4 @@ class Day01 : Day(1, "Historian Hysteria") {
     }
 }
 
-fun main() = Day01().process()
+fun main() = println(Day01().process())
