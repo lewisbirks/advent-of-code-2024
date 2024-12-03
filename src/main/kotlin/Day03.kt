@@ -1,3 +1,7 @@
+private const val MULTIPLY = "mul("
+private const val ENABLE = "do()"
+private const val DISABLE = "don't()"
+
 class Day03 : Day(3, "Mull It Over") {
 
     private val memory: String = parse().joinToString("")
@@ -6,48 +10,45 @@ class Day03 : Day(3, "Mull It Over") {
         var sum: Long = 0
         var i = 0
 
-        val skipTerms = buildList {
-            add("mul(")
+        val keyTerms = buildList {
+            add(MULTIPLY)
             if (allowDisabling) {
-                add("do()")
-                add("don't()")
+                add(ENABLE)
+                add(DISABLE)
             }
         }
+        val enabledLookupTerms = listOf(MULTIPLY, DISABLE)
+        val disabledLookupTerms = listOf(ENABLE)
 
-        fun findNext(search: String, start: Int): Int {
-            val found = memory.indexOf(search, start)
-            return if (found == -1) {
-                memory.length
-            } else {
-                found
-            }
-        }
+        fun findNext(search: List<String>, start: Int): Int = memory.findAnyOf(search, start)?.first ?: memory.length
 
         while (i < memory.length) {
-            when {
-                memory.startsWith("mul(", i) -> {
-                    i += 4
-                    val comma: Int = memory.indexOf(',', i)
-                    val end: Int = memory.indexOf(')', i)
-                    if (comma == -1 || end == -1) {
-                        i = memory.length
-                        continue
-                    }
-                    if (comma >= end) {
-                        continue
-                    }
-                    val first: Int? = memory.substring(i, comma).toIntOrNull()
-                    val second: Int? = memory.substring(comma + 1, end).toIntOrNull()
-                    if (first == null || second == null) {
-                        continue
-                    }
-                    sum += (first * second)
-                    i = end + 1
+            if (memory.startsWith(MULTIPLY, i)) {
+                i += 4
+                val comma: Int = memory.indexOf(',', i)
+                val end: Int = memory.indexOf(')', i)
+                if (comma == -1 || end == -1) {
+                    i = memory.length
+                    continue
                 }
-                allowDisabling && memory.startsWith("do()", i) -> i = findNext("mul(", i + 4)
-                allowDisabling && memory.startsWith("don't()", i) -> i = findNext("do()", i + 7) + 4
-                else -> i = memory.findAnyOf(skipTerms, i)?.first ?: memory.length
+                if (comma >= end) {
+                    continue
+                }
+                val first = memory.substring(i, comma).toIntOrNull()
+                val second = memory.substring(comma + 1, end).toIntOrNull()
+                if (first == null || second == null) {
+                    continue
+                }
+                sum += (first * second)
+                i = end + 1
+            } else if (allowDisabling && memory.startsWith(ENABLE, i)) {
+                i = findNext(enabledLookupTerms, i + 4)
+                continue
+            } else if (allowDisabling && memory.startsWith(DISABLE, i)) {
+                i = findNext(disabledLookupTerms, i + 7)
+                continue
             }
+            i = findNext(keyTerms, i)
         }
         return sum
     }

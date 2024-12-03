@@ -8,8 +8,8 @@ class Day01 : Day(1, "Historian Hysteria") {
     init {
         parse().forEach {
             val split = it.split("   ")
-            left.add(Integer.parseInt(split[0]))
-            right.add(Integer.parseInt(split[1]))
+            left.add(split[0].toInt())
+            right.add(split[1].toInt())
         }
 
         left.sort()
