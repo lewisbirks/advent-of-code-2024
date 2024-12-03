@@ -1,6 +1,6 @@
 class Day03 : Day(3, "Mull It Over") {
 
-    private val memory: String = parse().joinToString("\n")
+    private val memory: String = parse().joinToString("")
 
     private fun scan(allowDisabling: Boolean = true): Long {
         var sum: Long = 0
