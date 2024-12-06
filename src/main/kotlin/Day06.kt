@@ -27,36 +27,78 @@ class Day06 : Day(6, "Guard Gallivant") {
         this.maxX = lines[0].length - 1
     }
 
-    override fun part1(): Any {
-        var movement: Direction = Direction.UP
-        var guard: Point = this.guard
-        val locations: MutableSet<Point> = mutableSetOf(guard)
+    override fun part1(): Any = buildPath(obstacles).map { it.position }.distinct().size
+
+    private fun buildPath(obstacles: Set<Point>): List<Location> {
+        val locations: MutableList<Location> = mutableListOf()
+        val map = Map(guard, obstacles, maxX, maxY)
 
         while (true) {
-            val tmp = guard.safeMove(movement, maxX, maxY) ?: return locations.size
-            if (tmp in obstacles) {
-                movement = nextDirection(movement)
-                continue
-            }
-            guard = tmp
-            locations.add(guard)
+            val location = map.step() ?: return locations
+            locations.add(location)
         }
     }
 
-    override fun part2(): Any = TODO()
+    override fun part2(): Any {
+        val locations = buildPath(obstacles)
+        val checked = mutableSetOf<Point>()
 
-    private fun nextDirection(movement: Direction) = when (movement) {
-        Direction.UP -> Direction.RIGHT
-        Direction.RIGHT -> Direction.DOWN
-        Direction.DOWN -> Direction.LEFT
-        Direction.LEFT -> Direction.UP
-        else -> throw Exception("Unexpected direction $movement")
+        fun checkLocation(location: Location): Boolean {
+            val blocker = location.position.safeMove(location.direction, maxX, maxY) ?: return false
+            if (blocker in obstacles || blocker in checked) {
+                return false
+            }
+            checked.add(blocker)
+
+            val additionalObstacles = buildSet {
+                addAll(obstacles)
+                add(blocker)
+            }
+            // two pointer chasing
+            val m1 = Map(guard, additionalObstacles, maxX, maxY)
+            val m2 = Map(guard, additionalObstacles, maxX, maxY)
+
+            var stepBoth = false
+            while (true) {
+                val p1 = m1.step() ?: return false
+                if (stepBoth) {
+                    val p2 = m2.step()
+                    if (p1 == p2) {
+                        return true
+                    }
+                }
+                stepBoth = !stepBoth
+            }
+        }
+
+        return locations.count { checkLocation(it) }
+    }
+
+    data class Location(val position: Point, val direction: Direction)
+
+    class Map(private var guard: Point, private val obstacles: Set<Point>, private val maxX: Int, private val maxY: Int) {
+        private var direction: Direction = Direction.UP
+
+        fun step(): Location? {
+            val tmp = guard.safeMove(direction, maxX, maxY) ?: return null
+            if (tmp in obstacles) {
+                direction = nextDirection(direction)
+            } else {
+                guard = tmp
+            }
+            return Location(guard, direction)
+        }
+    }
+
+    companion object {
+        fun nextDirection(movement: Direction) = when (movement) {
+            Direction.UP -> Direction.RIGHT
+            Direction.RIGHT -> Direction.DOWN
+            Direction.DOWN -> Direction.LEFT
+            Direction.LEFT -> Direction.UP
+            else -> throw Exception("Unexpected direction $movement")
+        }
     }
 }
 
-fun main() {
-    val day = Day06()
-    println(day)
-    println(day.part1())
-//    println(Day06().process())
-}
+fun main() = println(Day06().process())
