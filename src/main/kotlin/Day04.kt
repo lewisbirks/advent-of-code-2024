@@ -1,3 +1,6 @@
+import Point.Direction
+import Point.Direction.*
+
 class Day04 : Day(4, "Ceres Search") {
 
     private val lines: List<String> = parse()
@@ -27,7 +30,7 @@ class Day04 : Day(4, "Ceres Search") {
         fun valid(direction: Direction, point: Point): Boolean {
             var current = point
             for (letter in toFind) {
-                val neighbour = current.neighbour(direction, maxX, maxY) ?: return false
+                val neighbour = current.safeMove(direction, maxX, maxY) ?: return false
                 if (lines[neighbour.y][neighbour.x] != letter) {
                     return false
                 }
@@ -41,10 +44,10 @@ class Day04 : Day(4, "Ceres Search") {
 
     override fun part2(): Any {
         fun valid(a: Point): Boolean {
-            val topLeft = a.neighbour(Direction.UP_LEFT, maxX, maxY) ?: return false
-            val topRight = a.neighbour(Direction.UP_RIGHT, maxX, maxY) ?: return false
-            val bottomLeft = a.neighbour(Direction.DOWN_LEFT, maxX, maxY) ?: return false
-            val bottomRight = a.neighbour(Direction.DOWN_RIGHT, maxX, maxY) ?: return false
+            val topLeft = a.safeMove(UP_LEFT, maxX, maxY) ?: return false
+            val topRight = a.safeMove(UP_RIGHT, maxX, maxY) ?: return false
+            val bottomLeft = a.safeMove(DOWN_LEFT, maxX, maxY) ?: return false
+            val bottomRight = a.safeMove(DOWN_RIGHT, maxX, maxY) ?: return false
 
             fun check(topLeftChar: Char, topRightChar: Char, bottomLeftChar: Char, bottomRightChar: Char): Boolean = lines[topLeft.y][topLeft.x] == topLeftChar
                     && lines[bottomLeft.y][bottomLeft.x] == bottomLeftChar
@@ -67,34 +70,6 @@ class Day04 : Day(4, "Ceres Search") {
         return aLocations.count { valid(it) }
     }
 
-    data class Point(val x: Int, val y: Int) {
-        fun neighbour(direction: Direction, maxX: Int, maxY: Int): Point? {
-            return move(direction).takeUnless { it.x < 0 || it.y < 0 || it.x > maxX || it.y > maxY }
-        }
-
-        private fun move(direction: Direction): Point {
-            return when (direction) {
-                Direction.LEFT -> Point(x - 1, y)
-                Direction.RIGHT -> Point(x + 1, y)
-                Direction.UP -> Point(x, y - 1)
-                Direction.DOWN -> Point(x, y + 1)
-                Direction.UP_LEFT -> Point(x - 1, y - 1)
-                Direction.UP_RIGHT -> Point(x + 1, y - 1)
-                Direction.DOWN_LEFT -> Point(x - 1, y + 1)
-                Direction.DOWN_RIGHT -> Point(x + 1, y + 1)
-            }
-        }
-
-        override fun toString(): String {
-            return "(x=$x, y=$y)"
-        }
-    }
-
-    enum class Direction {
-        LEFT, RIGHT, UP, DOWN,
-        UP_LEFT, UP_RIGHT,
-        DOWN_LEFT, DOWN_RIGHT
-    }
 }
 
 fun main() = println(Day04().process())
