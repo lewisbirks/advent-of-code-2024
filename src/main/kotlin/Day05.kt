@@ -21,8 +21,7 @@ class Day05 : Day(5, "Print Queue") {
 
     override fun part2(): Any = updates.filterNot { it.inOrder(rules) }.map { it.reorder(rules) }.sumOf { it.middlePage }
 
-
-    class Rule(val target: Int, val before: Int) {
+    private class Rule(val target: Int, val before: Int) {
 
         fun valid(update: Update): Boolean = update.pages.indexOf(target) < update.pages.indexOf(before)
 
@@ -36,7 +35,7 @@ class Day05 : Day(5, "Print Queue") {
         }
     }
 
-    class Update(val pages: List<Int>) {
+    private class Update(val pages: List<Int>) {
         val middlePage = pages[pages.size / 2]
 
         override fun toString(): String = "$pages"

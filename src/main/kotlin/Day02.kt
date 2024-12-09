@@ -6,7 +6,7 @@ class Day02 : Day(2, "Red-Nosed Reports") {
 
     override fun part2(): Any = reports.count { it.isSafeWithTolerance() }
 
-    data class Report(val levels: List<Int>) {
+    private data class Report(val levels: List<Int>) {
         companion object {
             fun parse(line: String): Report {
                 val elements = line.split(' ').map { Integer.parseInt(it) }

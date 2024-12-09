@@ -1,3 +1,4 @@
+import Day07.Equation.Operator
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -11,7 +12,7 @@ class Day07 : Day(7, "Bridge Repair") {
     private val allOperators = listOf(Operator.ADD, Operator.MULTIPLY, Operator.CONCAT)
     override fun part2(): Any = equations.filter { it.solve(allOperators) }.sumOf { it.total }
 
-    data class Equation(val total: Long, val numbers: List<Int>) {
+    private data class Equation(val total: Long, val numbers: List<Int>) {
         fun solve(operators: Collection<Operator>): Boolean = solve(operators, 1, numbers[0].toLong())
 
         private fun solve(operators: Collection<Operator>, index: Int, currentTotal: Long): Boolean {
@@ -44,28 +45,28 @@ class Day07 : Day(7, "Bridge Repair") {
                 return Equation(total, numbers)
             }
         }
-    }
 
-    enum class Operator {
-        ADD {
-            override fun apply(left: Number, right: Number): Long = left.toLong() + right.toLong()
-            override fun toString(): String = "+"
-        },
-        MULTIPLY {
-            override fun apply(left: Number, right: Number): Long = left.toLong() * right.toLong()
-            override fun toString(): String = "*"
-        },
-        CONCAT {
-            override fun apply(left: Number, right: Number): Long {
-                val multiplier = log10(right.toDouble()).toInt() + 1
-                val grown = left.toLong() * 10.0.pow(multiplier).toLong()
-                return grown + right.toLong()
-            }
+        enum class Operator {
+            ADD {
+                override fun apply(left: Number, right: Number): Long = left.toLong() + right.toLong()
+                override fun toString(): String = "+"
+            },
+            MULTIPLY {
+                override fun apply(left: Number, right: Number): Long = left.toLong() * right.toLong()
+                override fun toString(): String = "*"
+            },
+            CONCAT {
+                override fun apply(left: Number, right: Number): Long {
+                    val multiplier = log10(right.toDouble()).toInt() + 1
+                    val grown = left.toLong() * 10.0.pow(multiplier).toLong()
+                    return grown + right.toLong()
+                }
 
-            override fun toString(): String = "||"
-        };
+                override fun toString(): String = "||"
+            };
 
-        abstract fun apply(left: Number, right: Number): Long
+            abstract fun apply(left: Number, right: Number): Long
+        }
     }
 }
 

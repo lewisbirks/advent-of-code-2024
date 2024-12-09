@@ -74,9 +74,9 @@ class Day06 : Day(6, "Guard Gallivant") {
         return locations.count { checkLocation(it) }
     }
 
-    data class Location(val position: Point, val direction: Direction)
+    private data class Location(val position: Point, val direction: Direction)
 
-    class Map(private var guard: Point, private val obstacles: Set<Point>, private val maxX: Int, private val maxY: Int) {
+    private class Map(private var guard: Point, private val obstacles: Set<Point>, private val maxX: Int, private val maxY: Int) {
         private var direction: Direction = Direction.UP
 
         fun step(): Location? {
@@ -91,7 +91,7 @@ class Day06 : Day(6, "Guard Gallivant") {
     }
 
     companion object {
-        fun nextDirection(movement: Direction) = when (movement) {
+        private fun nextDirection(movement: Direction) = when (movement) {
             Direction.UP -> Direction.RIGHT
             Direction.RIGHT -> Direction.DOWN
             Direction.DOWN -> Direction.LEFT
