@@ -13,3 +13,6 @@ fun readInput(name: String): List<String> = Thread.currentThread().contextClassL
 fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
     .toString(16)
     .padStart(32, '0')
+
+fun <A, B> lazyCartesianProduct(first: Iterable<A>, second: Iterable<B>): Sequence<Pair<A, B>> =
+    sequence { first.forEach { a -> second.forEach { b -> yield(a to b) } } }
