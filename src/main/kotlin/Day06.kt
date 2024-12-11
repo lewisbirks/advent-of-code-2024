@@ -1,4 +1,5 @@
 import Point.Direction
+import Point.Location
 
 class Day06 : Day(6, "Guard Gallivant") {
 
@@ -74,29 +75,17 @@ class Day06 : Day(6, "Guard Gallivant") {
         return locations.count { checkLocation(it) }
     }
 
-    private data class Location(val position: Point, val direction: Direction)
-
     private class Map(private var guard: Point, private val obstacles: Set<Point>, private val maxX: Int, private val maxY: Int) {
         private var direction: Direction = Direction.UP
 
         fun step(): Location? {
             val tmp = guard.safeMove(direction, maxX, maxY) ?: return null
             if (tmp in obstacles) {
-                direction = nextDirection(direction)
+                direction = direction.nextCardinalDirection()
             } else {
                 guard = tmp
             }
             return Location(guard, direction)
-        }
-    }
-
-    companion object {
-        private fun nextDirection(movement: Direction) = when (movement) {
-            Direction.UP -> Direction.RIGHT
-            Direction.RIGHT -> Direction.DOWN
-            Direction.DOWN -> Direction.LEFT
-            Direction.LEFT -> Direction.UP
-            else -> throw Exception("Unexpected direction $movement")
         }
     }
 }

@@ -10,7 +10,7 @@ data class Point(val x: Int, val y: Int) {
         return this.x in minX..maxX && this.y in minY..maxY
     }
 
-    private fun move(direction: Direction): Point {
+    fun move(direction: Direction): Point {
         return when (direction) {
             Direction.LEFT -> Point(x - 1, y)
             Direction.RIGHT -> Point(x + 1, y)
@@ -30,6 +30,16 @@ data class Point(val x: Int, val y: Int) {
     enum class Direction {
         LEFT, RIGHT, UP, DOWN,
         UP_LEFT, UP_RIGHT,
-        DOWN_LEFT, DOWN_RIGHT
+        DOWN_LEFT, DOWN_RIGHT;
+
+        fun nextCardinalDirection() = when (this) {
+            UP -> RIGHT
+            RIGHT -> DOWN
+            DOWN -> LEFT
+            LEFT -> UP
+            else -> throw Exception("Unexpected direction $this")
+        }
     }
+
+    data class Location(val position: Point, val direction: Direction)
 }
