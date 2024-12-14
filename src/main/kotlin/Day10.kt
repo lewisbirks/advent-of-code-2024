@@ -14,11 +14,13 @@ class Day10 : Day(10, "Hoof It") {
         map = TopographicMap(t, lines[0].length - 1, lines.size - 1)
     }
 
-    override fun part1(): Any {
-        return map.startPoints().sumOf { map.score(it) }
-    }
+    override fun part1(): Any = map.trailheads().sumOf { map.score(it) }
 
-    override fun part2(): Any = TODO()
+    override fun part2(): Any = map.trailheads().sumOf {
+        val score = map.rate(it)
+        println("$it => $score")
+        score
+    }
 
     private class TopographicMap(private val topographies: List<Topography>, private val maxX: Int, private val maxY: Int) {
         private val lookupByHeight = buildMap<Int, Set<Point>> {
@@ -32,7 +34,7 @@ class Day10 : Day(10, "Hoof It") {
             topographies.forEach { put(it.position, it.height) }
         }
 
-        fun startPoints() = lookupByHeight[0]!!
+        fun trailheads() = lookupByHeight[0]!!
 
         fun score(start: Point): Int {
             val foundEnds = mutableSetOf<Point>()
@@ -64,6 +66,51 @@ class Day10 : Day(10, "Hoof It") {
             }
 
             return foundEnds.size
+        }
+
+        fun rate(start: Point): Int {
+            var found = 0
+            val path = mutableListOf(Location(start, UP))
+            val solvedPaths = mutableListOf<Set<Point>>()
+
+            fun inExistingSolution(position: Point) = solvedPaths.count { it.contains(position) }
+
+            // do depth first search
+            while (path.isNotEmpty()) {
+                val (location, direction) = path.removeLast()
+                val currentHeight = lookupByPosition[location]!!
+                val (nextLocation, nextDirection) = findNext(Topography(location, currentHeight), direction) ?: continue
+
+                var next = Location(location, nextDirection)
+                if (nextDirection != UP) {
+                    path.add(next)
+                }
+
+                // check if the next location is an ending
+                if (isEnd(nextLocation)) {
+                    solvedPaths.add(buildSet {
+                        path.forEach { add(it.position) }
+                        add(nextLocation)
+                    })
+                    found++
+                    continue
+                }
+
+                val inExistingSolutions = inExistingSolution(nextLocation)
+                if (inExistingSolutions > 0) {
+                    solvedPaths.add(buildSet {
+                        path.forEach { add(it.position) }
+                        add(nextLocation)
+                    })
+                    found += inExistingSolutions + 1
+                    continue
+                }
+                // add the next position if it hasn't already been checked
+                next = Location(nextLocation, UP)
+                path.add(next)
+            }
+
+            return found
         }
 
         private fun findNext(current: Topography, direction: Direction): Pair<Point, Direction>? {
