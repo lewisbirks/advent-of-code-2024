@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class DayXXTest {
+class Day$DAYTest {
 
-    private val underTest = DayXX()
+    private val underTest = Day$DAY()
 
     @Test
     fun part1() {

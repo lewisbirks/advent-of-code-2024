@@ -1,4 +1,4 @@
-class DayXX : Day(XX, "$NAME") {
+class Day$DAY : Day($DAY, "$NAME") {
 
     override fun part1(): Any = TODO()
 
@@ -6,7 +6,7 @@ class DayXX : Day(XX, "$NAME") {
 }
 
 fun main() {
-    val day = DayXX()
+    val day = Day$DAY()
     println(day)
 //    println(day.part1())
 //    println(day.part2())
