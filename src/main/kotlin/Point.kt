@@ -1,3 +1,5 @@
+import java.util.EnumSet
+
 data class Point(val x: Int, val y: Int) {
     fun safeMove(direction: Direction, maxX: Int, maxY: Int): Point? {
         return move(direction).takeIf { it.isValid(maxX, maxY) }
@@ -10,7 +12,7 @@ data class Point(val x: Int, val y: Int) {
         return this.x in minX..maxX && this.y in minY..maxY
     }
 
-    private fun move(direction: Direction): Point {
+    fun move(direction: Direction): Point {
         return when (direction) {
             Direction.LEFT -> Point(x - 1, y)
             Direction.RIGHT -> Point(x + 1, y)
@@ -30,6 +32,10 @@ data class Point(val x: Int, val y: Int) {
     enum class Direction {
         LEFT, RIGHT, UP, DOWN,
         UP_LEFT, UP_RIGHT,
-        DOWN_LEFT, DOWN_RIGHT
+        DOWN_LEFT, DOWN_RIGHT;
+
+        companion object {
+            val cardinalDirections = EnumSet.of(UP, RIGHT, DOWN, LEFT)
+        }
     }
 }
