@@ -1,36 +1,36 @@
 class Day12 : Day(12, "Garden Groups") {
 
     private val plants: MutableList<Plant>
-    private val lookup: Map<Char, MutableSet<Plant>>
+    private val lookup: Map<Char, MutableSet<Point>>
     private val maxX: Int
     private val maxY: Int
-    private val regions: MutableList<Region> = mutableListOf()
+    private val regions: Regions? = null
 
     init {
         val lines = parse()
         plants = lines.flatMapIndexed { y, line -> line.mapIndexed { x, plant -> Plant(plant, Point(x, y)) } }.toMutableList()
         lookup = plants.fold(mutableMapOf()) { acc, plant ->
-            acc.getOrPut(plant.plant) { mutableSetOf() }.add(plant)
+            acc.getOrPut(plant.plant) { mutableSetOf() }.add(plant.position)
             acc
         }
         maxX = lines[0].length - 1
         maxY = lines.size - 1
     }
 
-    override fun part1(): Any = getRegions().sumOf { it.price() }
+    override fun part1(): Any = getRegions().price()
 
-    override fun part2(): Any = getRegions().sumOf { it.bulkPrice() }
+    override fun part2(): Any = getRegions().bulkPrice()
 
-    private fun getRegions(): List<Region> {
-        if (regions.isNotEmpty()) {
+    private fun getRegions(): Regions {
+        if (regions != null) {
             return regions
         }
 
-        fun findNext(current: Plant, plants: Set<Plant>): List<Plant> {
-            return Point.Direction.cardinalDirections.mapNotNull { current.position.safeMove(it, maxX, maxY) }
-                .map { Plant(current.plant, it) }
-                .filter { it in plants }
-        }
+        fun findNext(current: Plant, plants: Set<Point>): List<Plant> = Point.Direction.cardinalDirections.mapNotNull { current.position.safeMove(it, maxX, maxY) }
+            .filter { it in plants }
+            .map { Plant(current.plant, it) }
+
+        val regions: MutableList<Region> = mutableListOf()
 
         while (plants.isNotEmpty()) {
             val plant = plants.removeFirst()
@@ -42,36 +42,47 @@ class Day12 : Day(12, "Garden Groups") {
 
             while (toCheck.isNotEmpty()) {
                 val current = toCheck.removeFirst()
-                remainingOfType.remove(current)
+                remainingOfType.remove(current.position)
                 plants.remove(current)
 
                 val next = findNext(current, remainingOfType)
-                for (n in next) {
-                    if (seen.add(n)) {
-                        toCheck.add(n)
-                        region.add(n)
-                    }
+
+                next.filter { seen.add(it) }.forEach {
+                    toCheck.add(it)
+                    region.add(it)
                 }
             }
 
             regions.add(Region(region.map { it.position }.toSet()))
         }
 
-        return regions
+        return Regions(regions)
     }
 
     private data class Plant(val plant: Char, val position: Point) {
         override fun toString(): String = "$plant $position"
     }
 
+    private class Regions(private val regions: List<Region>) {
+
+        fun price() = regions.sumOf { it.price() }
+
+        fun bulkPrice(): Int {
+            return -1
+        }
+
+    }
+
     private data class Region(private val region: Set<Point>) {
-        fun price() = region.size * perimeter()
+        val size = region.size
 
-        fun bulkPrice() = region.size * sides()
+        fun price() = size * perimeter().size
 
-        private fun perimeter(): Int {
+        fun bulkPrice() = size * sides()
+
+        private fun perimeter(): List<Pair<Point, Point.Direction>> {
             return region.flatMap { plant -> Point.Direction.cardinalDirections.map { plant to it } }
-                .count { (plant, direction) -> plant.move(direction) !in region }
+                .filter { (plant, direction) -> plant.move(direction) !in region }
         }
 
         private fun sides(): Int {
