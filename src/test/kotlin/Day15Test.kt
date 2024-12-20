@@ -15,7 +15,7 @@ class Day15Test {
 
     @Test
     fun part2() {
-        assertEquals(-1, underTest.part2())
+        assertEquals(9021L, underTest.part2())
     }
 }
 
