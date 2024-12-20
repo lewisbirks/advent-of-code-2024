@@ -10,7 +10,7 @@ data class Point(val x: Int, val y: Int) {
         return this.x in minX..maxX && this.y in minY..maxY
     }
 
-    private fun move(direction: Direction): Point {
+    fun move(direction: Direction): Point {
         return when (direction) {
             Direction.LEFT -> Point(x - 1, y)
             Direction.RIGHT -> Point(x + 1, y)
