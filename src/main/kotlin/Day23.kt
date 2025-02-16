@@ -36,47 +36,45 @@ class Day23 : Day(23, "LAN Party") {
     }
 
     override fun part2(): Any {
-        var longest = listOf<Connection>()
-
         // ka-co
-        fun findConnections(connection: Connection) {
+        fun findConnectedComputers(connection: Connection): Set<String> {
             // find all ka
-            val ka = lookup[connection.comp1]!!.filter { it != connection }
+            val comp1Connections = lookup[connection.comp1]!!.filter { it != connection }
             // find all co
-            val co = lookup[connection.comp2]!!.filter { it != connection }
+            val comp2Connections = lookup[connection.comp2]!!.filter { it != connection }
             // find all ka-x that are co-x
-            val remaining = ka.filter {
+            val remaining = comp1Connections.filter {
                 val other = if (it.comp1 == connection.comp1) it.comp2 else it.comp1
-                Connection(connection.comp2, other) in co
+                Connection(connection.comp2, other) in comp2Connections
             }
 
             // retain the remaining ones that connect to each other
             val computers = remaining.map { if (it.comp1 == connection.comp1) it.comp2 else it.comp1 }.distinct()
-            val valid = mutableSetOf(connection)
-            computers.forEachIndexed { i, computer ->
-                computers.subList(i + 1, computers.size).forEach { other ->
+            val validComputers = mutableSetOf(connection.comp1, connection.comp2)
+            val invalidComputers = mutableSetOf<String>()
+            for ((i, computer) in computers.withIndex()) {
+                if (computer in invalidComputers) continue
+                for (other in computers.subList(i + 1, computers.size)) {
+                    if (other in invalidComputers) continue
                     val possible = Connection(computer, other)
                     if (possible in connections) {
-                        valid.add(possible)
+                        validComputers.add(computer)
+                        validComputers.add(other)
+                    } else {
+                        invalidComputers.add(computer)
+                        invalidComputers.add(other)
+                        validComputers.removeIf() { it.contains(computer) || it.contains(other)}
+                        break
                     }
                 }
             }
-
-            // build all the parts
-            val parts = mutableSetOf<Connection>()
-            parts.addAll(valid)
-            valid.flatMap { listOf(Connection(connection.comp1, it.comp1), Connection(connection.comp2, it.comp2), Connection(connection.comp2, it.comp1), Connection(connection.comp1, it.comp2)) }
-                .filter { it in connections }
-                .forEach { parts.add(it) }
-
-            if (parts.size > longest.size) {
-                longest = parts.toList()
-            }
+            return validComputers
         }
 
-        connections.forEach { findConnections(it) }
-
-        return longest.flatMap { listOf(it.comp1, it.comp2) }.toSet().sorted().joinToString(",")
+        return connections.map { findConnectedComputers(it) }
+            .maxByOrNull { it.size }!!
+            .sorted()
+            .joinToString(",")
     }
 
     data class Connection(val comp1: String, val comp2: String) {
@@ -98,10 +96,4 @@ class Day23 : Day(23, "LAN Party") {
     }
 }
 
-fun main() {
-    val day = Day23()
-    println(day)
-    println(day.part1())
-    println(day.part2())
-//    println(DayXX().process())
-}
+fun main() = println(Day23().process())
