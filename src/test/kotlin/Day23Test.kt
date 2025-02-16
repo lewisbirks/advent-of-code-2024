@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class Day23Test {
@@ -11,9 +10,8 @@ class Day23Test {
         assertEquals(7, underTest.part1())
     }
 
-    @Disabled
     @Test
     fun part2() {
-        assertEquals(-1, underTest.part2())
+        assertEquals("co,de,ka,ta", underTest.part2())
     }
 }

@@ -35,7 +35,49 @@ class Day23 : Day(23, "LAN Party") {
         return found.size
     }
 
-    override fun part2(): Any = TODO()
+    override fun part2(): Any {
+        var longest = listOf<Connection>()
+
+        // ka-co
+        fun findConnections(connection: Connection) {
+            // find all ka
+            val ka = lookup[connection.comp1]!!.filter { it != connection }
+            // find all co
+            val co = lookup[connection.comp2]!!.filter { it != connection }
+            // find all ka-x that are co-x
+            val remaining = ka.filter {
+                val other = if (it.comp1 == connection.comp1) it.comp2 else it.comp1
+                Connection(connection.comp2, other) in co
+            }
+
+            // retain the remaining ones that connect to each other
+            val computers = remaining.map { if (it.comp1 == connection.comp1) it.comp2 else it.comp1 }.distinct()
+            val valid = mutableSetOf(connection)
+            computers.forEachIndexed { i, computer ->
+                computers.subList(i + 1, computers.size).forEach { other ->
+                    val possible = Connection(computer, other)
+                    if (possible in connections) {
+                        valid.add(possible)
+                    }
+                }
+            }
+
+            // build all the parts
+            val parts = mutableSetOf<Connection>()
+            parts.addAll(valid)
+            valid.flatMap { listOf(Connection(connection.comp1, it.comp1), Connection(connection.comp2, it.comp2), Connection(connection.comp2, it.comp1), Connection(connection.comp1, it.comp2)) }
+                .filter { it in connections }
+                .forEach { parts.add(it) }
+
+            if (parts.size > longest.size) {
+                longest = parts.toList()
+            }
+        }
+
+        connections.forEach { findConnections(it) }
+
+        return longest.flatMap { listOf(it.comp1, it.comp2) }.toSet().sorted().joinToString(",")
+    }
 
     data class Connection(val comp1: String, val comp2: String) {
         fun aCompStartsWith(c: Char): Boolean = comp1[0] == c || comp2[0] == c
@@ -60,6 +102,6 @@ fun main() {
     val day = Day23()
     println(day)
     println(day.part1())
-//    println(day.part2())
+    println(day.part2())
 //    println(DayXX().process())
 }
