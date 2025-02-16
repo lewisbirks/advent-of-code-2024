@@ -9,13 +9,13 @@ class Day23 : Day(23, "LAN Party") {
             this[comp] = bucket
         }
         connections.forEach { c ->
-            add(c) { it.comp1 }
-            add(c) { it.comp2 }
+            add(c) { it.computer1 }
+            add(c) { it.computer2 }
         }
     }
 
     override fun part1(): Any {
-        val ts = connections.filter { it.aCompStartsWith('t') }
+        val ts = connections.filter { it.aComputerStartsWith('t') }
 
         val found = mutableSetOf<Set<Connection>>()
         data class Possible(val confirmed: Connection, val possible: Connection)
@@ -23,12 +23,8 @@ class Day23 : Day(23, "LAN Party") {
             // co,de,ta
             // de-co, ta-co, de-ta
             // de-co, co-ta, de-ta
-            lookup[t.comp1]!!.filter { it != t }
-                .map {
-                    val other = if (it.comp1 == t.comp1) it.comp2 else it.comp1
-                    val toFind = Connection(t.comp2, other)
-                    Possible(it, toFind)
-                }
+            lookup[t.computer1]!!.filter { it != t }
+                .map { Possible(it, Connection(t.computer2, it.getNonMatchingComputer(t))) }
                 .filter { it.possible in connections }
                 .forEach { found.add(setOf(t, it.confirmed, it.possible)) }
         }
@@ -39,25 +35,21 @@ class Day23 : Day(23, "LAN Party") {
         // ka-co
         fun findConnectedComputers(connection: Connection): Set<String> {
             // find all ka
-            val comp1Connections = lookup[connection.comp1]!!.filter { it != connection }
+            val comp1Connections = lookup[connection.computer1]!!.filter { it != connection }
             // find all co
-            val comp2Connections = lookup[connection.comp2]!!.filter { it != connection }
+            val comp2Connections = lookup[connection.computer2]!!.filter { it != connection }
             // find all ka-x that are co-x
-            val remaining = comp1Connections.filter {
-                val other = if (it.comp1 == connection.comp1) it.comp2 else it.comp1
-                Connection(connection.comp2, other) in comp2Connections
-            }
+            val remaining = comp1Connections.filter { Connection(connection.computer2, it.getNonMatchingComputer(connection)) in comp2Connections }
 
             // retain the remaining ones that connect to each other
-            val computers = remaining.map { if (it.comp1 == connection.comp1) it.comp2 else it.comp1 }.distinct()
-            val validComputers = mutableSetOf(connection.comp1, connection.comp2)
+            val computers = remaining.map { it.getNonMatchingComputer(connection) }.distinct()
+            val validComputers = mutableSetOf(connection.computer1, connection.computer2)
             val invalidComputers = mutableSetOf<String>()
             for ((i, computer) in computers.withIndex()) {
                 if (computer in invalidComputers) continue
                 for (other in computers.subList(i + 1, computers.size)) {
                     if (other in invalidComputers) continue
-                    val possible = Connection(computer, other)
-                    if (possible in connections) {
+                    if (Connection(computer, other) in connections) {
                         validComputers.add(computer)
                         validComputers.add(other)
                     } else {
@@ -77,22 +69,22 @@ class Day23 : Day(23, "LAN Party") {
             .joinToString(",")
     }
 
-    data class Connection(val comp1: String, val comp2: String) {
-        fun aCompStartsWith(c: Char): Boolean = comp1[0] == c || comp2[0] == c
+    data class Connection(val computer1: String, val computer2: String) {
+        fun aComputerStartsWith(c: Char): Boolean = computer1[0] == c || computer2[0] == c
 
-        fun contains(comp: String): Boolean = comp1 == comp || comp2 == comp
+        fun contains(comp: String): Boolean = computer1 == comp || computer2 == comp
+
+        fun getNonMatchingComputer(other: Connection): String = if (computer1 == other.computer1) computer2 else computer1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || other !is Connection) return false
-            return (comp1 == other.comp1 && comp2 == other.comp2) || (comp1 == other.comp2 && comp2 == other.comp1)
+            return (computer1 == other.computer1 && computer2 == other.computer2) || (computer1 == other.computer2 && computer2 == other.computer1)
         }
 
-        override fun hashCode(): Int {
-            return listOf(comp1, comp2).sorted().hashCode()
-        }
+        override fun hashCode(): Int = listOf(computer1, computer2).sorted().hashCode()
 
-        override fun toString(): String = "$comp1-$comp2"
+        override fun toString(): String = "$computer1-$computer2"
     }
 }
 
